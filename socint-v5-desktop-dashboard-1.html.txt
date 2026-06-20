@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCINT v5.0 • Identity Intelligence Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --accent-emerald: #10b981;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', system_ui, sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+        }
+
+        .dashboard-frame {
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5),
+                        0 10px 10px -6px rgb(0 0 0 / 0.4);
+            border: 1px solid #1e293b;
+        }
+
+        .nav-item {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-item.active {
+            background-color: #0f172a;
+            color: #10b981;
+            border-left: 3px solid #10b981;
+        }
+        
+        .nav-item:hover:not(.active) {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .stat-card {
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), 
+                       box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+        }
+
+        .section-header {
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .metric-value {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        .signal-bar {
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .threat-card {
+            transition: all 0.1s ease;
+        }
+        
+        .threat-card:hover {
+            transform: translateY(-1px);
+        }
+
+        .platform-row {
+            transition: background-color 0.1s ease;
+        }
+        
+        .platform-row:hover {
+            background-color: #0f172a;
+        }
+
+        .activity-item {
+            transition: background-color 0.1s ease;
+        }
+        
+        .activity-item:hover {
+            background-color: #0f172a;
+        }
+
+        .dashboard-bg {
+            background: #020617;
+        }
+
+        .panel {
+            background: #0f172a;
+            border: 1px solid #334155;
+        }
+
+        .subtle-shadow {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
+                       0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(15, 23, 42, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.4) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        .status-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 flex items-center justify-center min-h-screen p-6">
+    <!-- 1440x900 Dashboard Frame -->
+    <div class="dashboard-frame w-[1440px] h-[900px] bg-[#020617] rounded-2xl overflow-hidden flex flex-col border border-slate-800">
+        
+        <!-- TOP BAR (56px) -->
+        <div class="h-14 bg-[#0f172a] border-b border-slate-700 px-6 flex items-center justify-between flex-shrink-0 z-50">
+            
+            <!-- Left: Logo -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-shield-halved text-white text-2xl"></i>
+                </div>
+                <div>
+                    <div class="font-display text-2xl font-semibold tracking-tighter text-white">SOCINT</div>
+                    <div class="text-[10px] text-slate-500 -mt-1 tracking-[1px]">IDENTITY INTELLIGENCE</div>
+                </div>
+            </div>
+
+            <!-- Center: Global Search -->
+            <div class="flex-1 max-w-xl mx-8">
+                <div class="relative group">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <i class="fa-solid fa-search text-sm"></i>
+                    </div>
+                    <input type="text" 
+                           placeholder="Search entities, aliases, investigations..."
+                           class="w-full bg-[#020617] border border-slate-700 focus:border-emerald-500/70 transition-colors text-sm placeholder:text-slate-500 pl-11 pr-4 py-2.5 rounded-2xl outline-none text-slate-200">
+                </div>
+            </div>
+
+            <!-- Right: Notifications + User -->
+            <div class="flex items-center gap-5">
+                <!-- Notifications -->
+                <div class="relative cursor-pointer" onclick="showNotifications()">
+                    <i class="fa-solid fa-bell text-xl text-slate-300 hover:text-white transition-colors"></i>
+                    <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center ring-2 ring-[#0f172a]">
+                        <span class="text-white text-[10px] font-bold">3</span>
+                    </div>
+                </div>
+
+                <!-- User Avatar -->
+                <div class="flex items-center gap-2.5 cursor-pointer" onclick="showUserMenu()">
+                    <div class="relative">
+                        <div class="w-8 h-8 rounded-full bg-slate-600 overflow-hidden ring-2 ring-slate-700">
+                            <img src="https://i.pravatar.cc/32?img=47" alt="Admin" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-[#0f172a]"></div>
+                    </div>
+                    <div class="text-sm">
+                        <div class="font-medium text-white">Admin</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-1 overflow-hidden">
+            
+            <!-- LEFT SIDEBAR (256px) -->
+            <div class="w-64 bg-[#0f172a] border-r border-slate-700 flex flex-col flex-shrink-0">
+                
+                <!-- Sidebar Header -->
+                <div class="px-5 pt-5 pb-3">
+                    <div class="flex items-center gap-3 px-1">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center shadow-inner">
+                            <i class="fa-solid fa-shield-halved text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-lg tracking-tighter">SOCINT</div>
+                            <div class="text-emerald-400 text-xs font-mono tracking-widest -mt-0.5">v5.0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="px-2 flex-1 overflow-y-auto py-2 text-sm">
+                    <div class="space-y-px">
+                        <!-- Dashboard (Active) -->
+                        <div onclick="navigateToSection(this, 'dashboard')" class="nav-item active flex items-center gap-3 px-4 py-[9px] rounded-xl text-emerald-400 cursor-pointer">
+                            <i class="fa-solid fa-chart-line w-4 text-center"></i>
+                            <span class="font-medium">Dashboard</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'entities')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-users w-4 text-center"></i>
+                            <span class="font-medium">Entities</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'osint')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-globe w-4 text-center"></i>
+                            <span class="font-medium">OSINT Hub</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'correlations')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-link w-4 text-center"></i>
+                            <span class="font-medium">Correlations</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'graph')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-brain w-4 text-center"></i>
+                            <span class="font-medium">Knowledge Graph</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'network')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-share-alt w-4 text-center"></i>
+                            <span class="font-medium">Network Analysis</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'media')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-images w-4 text-center"></i>
+                            <span class="font-medium">Media Gallery</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'geoint')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-map-marker-alt w-4 text-center"></i>
+                            <span class="font-medium">GEOINT Map</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'risk')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-shield-alt w-4 text-center"></i>
+                            <span class="font-medium">Risk Center</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'ai')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-robot w-4 text-center"></i>
+                            <span class="font-medium">AI Copilot</span>
+                        </div>
+                        
+                        <div onclick="navigateToSection(this, 'settings')" class="nav-item flex items-center gap-3 px-4 py-[9px] rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-cog w-4 text-center"></i>
+                            <span class="font-medium">Settings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Footer - User Profile -->
+                <div class="p-4 border-t border-slate-700 mt-auto">
+                    <div class="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-800 cursor-pointer">
+                        <div class="relative flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full bg-slate-600 overflow-hidden ring-2 ring-slate-700">
+                                <img src="https://i.pravatar.cc/32?img=47" alt="Administrator" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full ring-[1.5px] ring-[#0f172a]"></div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-white truncate">Administrator</div>
+                            <div class="text-emerald-400 text-xs flex items-center gap-1">
+                                <span>Online</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="flex-1 flex flex-col overflow-hidden bg-[#020617]">
+                
+                <!-- HEADER SECTION -->
+                <div class="px-8 pt-6 pb-5 flex-shrink-0">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h1 class="text-4xl font-semibold tracking-tighter text-white">Dashboard</h1>
+                            <p class="text-slate-400 mt-1">Identity Intelligence Overview • Mexico City</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <!-- ALL SYSTEMS Badge -->
+                            <div class="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                                <div class="w-2 h-2 bg-emerald-400 rounded-full status-dot"></div>
+                                <span class="text-emerald-400 text-sm font-semibold tracking-wider">ALL SYSTEMS OPERATIONAL</span>
+                            </div>
+                            
+                            <!-- Status Pills -->
+                            <div class="flex items-center gap-2 text-xs">
+                                <div class="px-3 py-1 rounded-full border border-emerald-500/40 text-emerald-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-database text-xs"></i>
+                                    <span class="font-medium">Database: Connected</span>
+                                </div>
+                                <div class="px-3 py-1 rounded-full border border-emerald-500/40 text-emerald-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-project-diagram text-xs"></i>
+                                    <span class="font-medium">Neo4j: Connected</span>
+                                </div>
+                                <div class="px-3 py-1 rounded-full border border-emerald-500/40 text-emerald-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-memory text-xs"></i>
+                                    <span class="font-medium">Redis: Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATS ROW (8 cards - 4x2) -->
+                <div class="px-8 grid grid-cols-4 gap-4 flex-shrink-0">
+                    
+                    <!-- Card 1: Entities -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-emerald-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-emerald-400">
+                                    <i class="fa-solid fa-users"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Entities</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">4</div>
+                                <div class="text-xs text-slate-400 mt-0.5">avg risk: <span class="text-amber-400 font-medium">40</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-users text-emerald-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Investigations -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-sky-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-sky-400">
+                                    <i class="fa-solid fa-file-alt"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Investigations</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">3</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-emerald-400 font-medium">2 active</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-sky-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-file-alt text-sky-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: OSINT Posts -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-purple-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-purple-400">
+                                    <i class="fa-solid fa-database"></i>
+                                    <span class="font-semibold text-sm tracking-tight">OSINT Posts</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">156</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-purple-300">3 platforms</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-purple-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-database text-purple-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Threat Alerts -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-red-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-red-400">
+                                    <i class="fa-solid fa-exclamation-triangle"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Threat Alerts</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">3</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-red-400 font-medium">2 unread</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-exclamation-triangle text-red-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Correlations -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-amber-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-amber-400">
+                                    <i class="fa-solid fa-link"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Correlations</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">12</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-amber-300">3 pending</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-link text-amber-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Media Items -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-pink-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-pink-400">
+                                    <i class="fa-solid fa-images"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Media Items</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">47</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-pink-300">2 extracted</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-pink-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-images text-pink-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 7: Locations -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-cyan-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-cyan-400">
+                                    <i class="fa-solid fa-globe"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Locations</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">8</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-cyan-300">4 mapped</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-cyan-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-globe text-cyan-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 8: Active Jobs -->
+                    <div class="stat-card panel rounded-2xl p-5 border-t-4 border-orange-500">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 text-orange-400">
+                                    <i class="fa-solid fa-bolt"></i>
+                                    <span class="font-semibold text-sm tracking-tight">Active Jobs</span>
+                                </div>
+                                <div class="metric-value text-4xl font-semibold text-white mt-2">2</div>
+                                <div class="text-xs text-slate-400 mt-0.5"><span class="text-orange-300">1 running</span></div>
+                            </div>
+                            <div class="w-9 h-9 rounded-2xl bg-orange-500/10 flex items-center justify-center">
+                                <i class="fa-solid fa-bolt text-orange-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MIDDLE ROW -->
+                <div class="px-8 pt-5 grid grid-cols-2 gap-4 flex-1 min-h-0">
+                    
+                    <!-- LEFT: Activity Feed -->
+                    <div class="panel rounded-2xl flex flex-col overflow-hidden">
+                        <div class="px-5 pt-4 pb-3 flex items-center justify-between border-b border-slate-700 flex-shrink-0">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-clock text-emerald-400"></i>
+                                <span class="section-header text-lg text-white">Recent Activity</span>
+                            </div>
+                            <button onclick="refreshActivity()" class="text-xs px-3 py-1 rounded-xl border border-slate-600 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                                <i class="fa-solid fa-sync text-xs"></i>
+                                <span>Refresh</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex-1 overflow-y-auto p-2 text-sm space-y-px" style="scrollbar-width: thin; scrollbar-color: #334155 #0f172a;">
+                            
+                            <div class="activity-item flex items-start gap-3 px-3 py-2.5 rounded-xl">
+                                <div class="mt-1 w-5 flex-shrink-0"><i class="fa-solid fa-check-circle text-emerald-400"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white">14:30 — Scraped Instagram <span class="font-mono text-emerald-300">@jperez_ig</span> (342 posts)</div>
+                                    <div class="text-xs text-slate-500">Source: gallery-dl • Success</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item flex items-start gap-3 px-3 py-2.5 rounded-xl">
+                                <div class="mt-1 w-5 flex-shrink-0"><i class="fa-solid fa-link text-blue-400"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white">14:15 — Found correlation <span class="font-mono">IG → TW</span> <span class="text-blue-400">95% match</span></div>
+                                    <div class="text-xs text-slate-500">Entity: Juan Perez • Auto-linked</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item flex items-start gap-3 px-3 py-2.5 rounded-xl">
+                                <div class="mt-1 w-5 flex-shrink-0"><i class="fa-solid fa-exclamation-triangle text-orange-400"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white">14:05 — Risk score increased <span class="text-orange-400">+15</span> for Juan Perez</div>
+                                    <div class="text-xs text-slate-500">Trigger: New high-risk correlation</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item flex items-start gap-3 px-3 py-2.5 rounded-xl">
+                                <div class="mt-1 w-5 flex-shrink-0"><i class="fa-solid fa-download text-purple-400"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white">13:50 — Downloaded <span class="font-medium">23 media items</span> from TikTok</div>
+                                    <div class="text-xs text-slate-500">Pipeline: media-extractor-v2 • 2.4 GB</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item flex items-start gap-3 px-3 py-2.5 rounded-xl">
+                                <div class="mt-1 w-5 flex-shrink-0"><i class="fa-solid fa-plus text-slate-400"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-white">13:30 — New entity created: <span class="font-medium">Maria Garcia</span></div>
+                                    <div class="text-xs text-slate-500">Source: Manual entry • Risk: 22</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Correlation Signal Radar -->
+                    <div class="panel rounded-2xl flex flex-col overflow-hidden">
+                        <div class="px-5 pt-4 pb-3 flex items-center gap-2.5 border-b border-slate-700 flex-shrink-0">
+                            <i class="fa-solid fa-broadcast-tower text-emerald-400"></i>
+                            <span class="section-header text-lg text-white">Correlation Signals</span>
+                            <span class="ml-auto text-xs px-2.5 py-px rounded-full bg-emerald-500/10 text-emerald-400 font-mono">12/28</span>
+                        </div>
+                        
+                        <div class="flex-1 overflow-y-auto p-4 space-y-[7px] text-sm" style="scrollbar-width: thin; scrollbar-color: #334155 #0f172a;">
+                            
+                            <!-- Signal bars -->
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">MelissaIdentityKey</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-red-500 signal-bar" style="width: 95%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-red-400 font-semibold">95%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Email Exact</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-orange-500 signal-bar" style="width: 90%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-orange-400 font-semibold">90%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Phone Exact</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-amber-500 signal-bar" style="width: 85%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-amber-400 font-semibold">85%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">MelissaAddressKey</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-yellow-500 signal-bar" style="width: 80%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-yellow-400 font-semibold">80%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Address Key</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-lime-500 signal-bar" style="width: 70%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-lime-400 font-semibold">70%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Name Fuzzy</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-green-500 signal-bar" style="width: 65%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-green-400 font-semibold">65%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Username Fuzzy</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-teal-500 signal-bar" style="width: 55%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-teal-400 font-semibold">55%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">EXIF/GPS Match</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-cyan-500 signal-bar" style="width: 50%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-cyan-400 font-semibold">50%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Avatar Match</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-sky-500 signal-bar" style="width: 45%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-sky-400 font-semibold">45%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Shared Followers</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-blue-500 signal-bar" style="width: 35%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-blue-400 font-semibold">35%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Temporal Overlap</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-indigo-500 signal-bar" style="width: 30%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-indigo-400 font-semibold">30%</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-40 text-right text-xs text-slate-300 font-medium">Bio Similarity</div>
+                                <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-violet-500 signal-bar" style="width: 25%"></div></div>
+                                <div class="w-9 text-right font-mono text-xs text-violet-400 font-semibold">25%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTTOM ROW -->
+                <div class="px-8 pt-4 pb-6 grid grid-cols-2 gap-4 flex-shrink-0">
+                    
+                    <!-- LEFT: Threat Matrix -->
+                    <div class="panel rounded-2xl p-5 flex flex-col">
+                        <div class="flex items-center gap-2.5 mb-4">
+                            <i class="fa-solid fa-shield-alt text-red-400"></i>
+                            <span class="section-header text-lg text-white">Active Threats</span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <!-- Threat 1: Red -->
+                            <div class="threat-card bg-[#0a0f1e] border-l-4 border-red-500 rounded-2xl p-4 flex gap-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-red-400">Impersonation Campaign</span>
+                                        <span class="text-xs px-2 py-px rounded bg-red-500/10 text-red-400 font-mono">92%</span>
+                                    </div>
+                                    <div class="text-sm text-white mt-1">Juan Perez • <span class="text-slate-400">fake_account, stolen_photo</span></div>
+                                </div>
+                                <button onclick="investigateThreat(0)" class="self-start text-xs px-4 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-medium transition-colors">INVESTIGATE</button>
+                            </div>
+                            
+                            <!-- Threat 2: Orange -->
+                            <div class="threat-card bg-[#0a0f1e] border-l-4 border-orange-500 rounded-2xl p-4 flex gap-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-orange-400">Data Leak Pattern</span>
+                                        <span class="text-xs px-2 py-px rounded bg-orange-500/10 text-orange-400 font-mono">78%</span>
+                                    </div>
+                                    <div class="text-sm text-white mt-1">TechCorp SA • <span class="text-slate-400">pastebin, breach_db</span></div>
+                                </div>
+                                <button onclick="investigateThreat(1)" class="self-start text-xs px-4 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-medium transition-colors">REVIEW</button>
+                            </div>
+                            
+                            <!-- Threat 3: Yellow -->
+                            <div class="threat-card bg-[#0a0f1e] border-l-4 border-yellow-500 rounded-2xl p-4 flex gap-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-yellow-400">Bot Network Detected</span>
+                                        <span class="text-xs px-2 py-px rounded bg-yellow-500/10 text-yellow-400 font-mono">65%</span>
+                                    </div>
+                                    <div class="text-sm text-white mt-1">Unknown • <span class="text-slate-400">coordinated, timing</span></div>
+                                </div>
+                                <button onclick="investigateThreat(2)" class="self-start text-xs px-4 py-1.5 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 font-medium transition-colors">MONITOR</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Platform Status -->
+                    <div class="panel rounded-2xl p-5 flex flex-col">
+                        <div class="flex items-center gap-2.5 mb-4">
+                            <i class="fa-solid fa-wifi text-emerald-400"></i>
+                            <span class="section-header text-lg text-white">Platform Status</span>
+                        </div>
+                        
+                        <div class="text-xs space-y-1">
+                            <div class="platform-row flex items-center px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2 w-36">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="font-medium">Instagram</span>
+                                </div>
+                                <div class="flex-1 text-emerald-400">Active</div>
+                                <div class="w-14 text-right text-slate-400 font-mono">14:30</div>
+                                <div class="flex-1 text-right text-xs text-slate-500">Imginn / gallery-dl</div>
+                            </div>
+                            
+                            <div class="platform-row flex items-center px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2 w-36">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="font-medium">Twitter / X</span>
+                                </div>
+                                <div class="flex-1 text-emerald-400">Active</div>
+                                <div class="w-14 text-right text-slate-400 font-mono">14:15</div>
+                                <div class="flex-1 text-right text-xs text-slate-500">Nitter / twscrape</div>
+                            </div>
+                            
+                            <div class="platform-row flex items-center px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2 w-36">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="font-medium">TikTok</span>
+                                </div>
+                                <div class="flex-1 text-emerald-400">Active</div>
+                                <div class="w-14 text-right text-slate-400 font-mono">14:10</div>
+                                <div class="flex-1 text-right text-xs text-slate-500">Urlebird / yt-dlp</div>
+                            </div>
+                            
+                            <div class="platform-row flex items-center px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2 w-36">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <span class="font-medium">Reddit</span>
+                                </div>
+                                <div class="flex-1 text-blue-400">API</div>
+                                <div class="w-14 text-right text-slate-400 font-mono">Public</div>
+                                <div class="flex-1 text-right text-xs text-slate-500">Reddit JSON API</div>
+                            </div>
+                            
+                            <div class="platform-row flex items-center px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2 w-36">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="font-medium">Telegram</span>
+                                </div>
+                                <div class="flex-1 text-emerald-400">Active</div>
+                                <div class="w-14 text-right text-slate-400 font-mono">14:05</div>
+                                <div class="flex-1 text-right text-xs text-slate-500">Telethon API</div>
+                            </div>
+                            
+                            <div class="platform-row flex items-center px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2 w-36">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="font-medium">YouTube</span>
+                                </div>
+                                <div class="flex-1 text-emerald-400">Active</div>
+                                <div class="w-14 text-right text-slate-400 font-mono">13:50</div>
+                                <div class="flex-1 text-right text-xs text-slate-500">yt.lemnoslife</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2"></div>
+
+    <script>
+        // Tailwind config
+        function initTailwind() {
+            // Already using CDN classes
+        }
+
+        // Navigation handler
+        function navigateToSection(element, section) {
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active', 'text-emerald-400');
+                el.classList.add('text-slate-300');
+            });
+            
+            // Activate clicked item
+            element.classList.add('active', 'text-emerald-400');
+            element.classList.remove('text-slate-300');
+            
+            const sectionNames = {
+                'dashboard': 'Dashboard',
+                'entities': 'Entities',
+                'osint': 'OSINT Hub',
+                'correlations': 'Correlations',
+                'graph': 'Knowledge Graph',
+                'network': 'Network Analysis',
+                'media': 'Media Gallery',
+                'geoint': 'GEOINT Map',
+                'risk': 'Risk Center',
+                'ai': 'AI Copilot',
+                'settings': 'Settings'
+            };
+            
+            showToast(`Navigating to ${sectionNames[section]}...`, 'info', 1600);
+            
+            // Demo: if not dashboard, flash back after a moment
+            if (section !== 'dashboard') {
+                setTimeout(() => {
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'text-emerald-400'));
+                    document.querySelectorAll('.nav-item').forEach(el => el.classList.add('text-slate-300'));
+                    // Re-activate Dashboard
+                    const dashboardNav = document.querySelector('.nav-item');
+                    if (dashboardNav) {
+                        dashboardNav.classList.add('active', 'text-emerald-400');
+                        dashboardNav.classList.remove('text-slate-300');
+                    }
+                }, 1850);
+            }
+        }
+
+        // Toast system
+        function showToast(message, type = 'info', duration = 2400) {
+            const container = document.getElementById('toast-container');
+            
+            const colors = {
+                success: 'bg-emerald-600 border-emerald-500 text-white',
+                error: 'bg-red-600 border-red-500 text-white',
+                info: 'bg-slate-700 border-slate-600 text-slate-200'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-3 px-5 py-3 rounded-2xl border shadow-xl text-sm max-w-xs ${colors[type] || colors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-lg flex-shrink-0"></i>
+                <div>${message}</div>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.25s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 200);
+            }, duration);
+        }
+
+        // Notifications panel
+        function showNotifications() {
+            const existing = document.getElementById('notif-panel');
+            if (existing) {
+                existing.remove();
+                return;
+            }
+            
+            const panel = document.createElement('div');
+            panel.id = 'notif-panel';
+            panel.className = 'absolute right-6 top-[58px] w-96 bg-[#0f172a] border border-slate-700 rounded-3xl shadow-2xl z-[150] overflow-hidden';
+            
+            panel.innerHTML = `
+                <div class="px-5 py-4 border-b border-slate-700 flex items-center justify-between">
+                    <div class="font-semibold">Notifications</div>
+                    <div class="text-xs px-3 py-1 bg-red-500/10 text-red-400 rounded-full font-mono">3 new</div>
+                </div>
+                <div class="max-h-[320px] overflow-auto divide-y divide-slate-700 text-sm">
+                    <div class="px-5 py-4 hover:bg-slate-800 cursor-pointer flex gap-3">
+                        <i class="fa-solid fa-exclamation-triangle text-red-400 mt-1"></i>
+                        <div>
+                            <div class="font-medium">Critical impersonation campaign detected</div>
+                            <div class="text-xs text-slate-400">Juan Perez • 92% confidence • 2m ago</div>
+                        </div>
+                    </div>
+                    <div class="px-5 py-4 hover:bg-slate-800 cursor-pointer flex gap-3">
+                        <i class="fa-solid fa-link text-blue-400 mt-1"></i>
+                        <div>
+                            <div class="font-medium">New high-confidence correlation found</div>
+                            <div class="text-xs text-slate-400">IG → TW 95% • Entity #A-4491 • 14m ago</div>
+                        </div>
+                    </div>
+                    <div class="px-5 py-4 hover:bg-slate-800 cursor-pointer flex gap-3">
+                        <i class="fa-solid fa-robot text-purple-400 mt-1"></i>
+                        <div>
+                            <div class="font-medium">AI Copilot completed risk assessment</div>
+                            <div class="text-xs text-slate-400">Maria Garcia • Risk +12 • 47m ago</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 border-t border-slate-700 bg-[#020617]">
+                    <button onclick="dismissAllNotifications(this)" class="w-full text-center text-xs py-2 text-emerald-400 hover:text-emerald-300 font-semibold tracking-wider">MARK ALL AS READ</button>
+                </div>
+            `;
+            
+            const topBar = document.querySelector('.h-14');
+            topBar.style.position = 'relative';
+            topBar.appendChild(panel);
+            
+            setTimeout(() => {
+                document.addEventListener('click', function handler(e) {
+                    if (!panel.contains(e.target)) {
+                        panel.remove();
+                        document.removeEventListener('click', handler);
+                    }
+                }, { once: true });
+            }, 50);
+        }
+        
+        function dismissAllNotifications(el) {
+            const panel = el.closest('#notif-panel');
+            if (panel) panel.remove();
+            showToast('All notifications marked as read', 'success');
+        }
+
+        // User menu
+        function showUserMenu() {
+            showToast('Opening user profile & session settings...', 'info', 1800);
+        }
+
+        // Threat investigation actions
+        function investigateThreat(index) {
+            const actions = [
+                "Investigation case #TH-884 opened for Impersonation Campaign. Assigning analyst...",
+                "Data Leak Pattern sent to Risk Center for escalation. 12 related entities flagged.",
+                "Bot Network placed under enhanced monitoring. 47 accounts added to watchlist."
+            ];
+            showToast(actions[index], 'success', 4200);
+        }
+
+        // Refresh activity feed
+        function refreshActivity() {
+            const feed = document.querySelector('.panel .overflow-y-auto');
+            if (!feed) return;
+            
+            feed.style.transition = 'opacity 0.2s';
+            feed.style.opacity = '0.3';
+            
+            setTimeout(() => {
+                feed.style.opacity = '1';
+                showToast('Activity feed refreshed • 2 new events', 'success', 1800);
+                
+                // Add a new activity item at top for demo
+                const newItem = document.createElement('div');
+                newItem.className = 'activity-item flex items-start gap-3 px-3 py-2.5 rounded-xl bg-emerald-900/10';
+                newItem.innerHTML = `
+                    <div class="mt-1 w-5 flex-shrink-0"><i class="fa-solid fa-sync text-emerald-400"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white">Just now — Live sync completed across 6 platforms</div>
+                        <div class="text-xs text-emerald-400">+18 new posts • 3 new correlations</div>
+                    </div>
+                `;
+                feed.insertBefore(newItem, feed.firstChild);
+                
+                setTimeout(() => {
+                    newItem.classList.remove('bg-emerald-900/10');
+                }, 2200);
+            }, 420);
+        }
+
+        // Keyboard shortcuts
+        function initKeyboard() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+                    e.preventDefault();
+                    const searchInput = document.querySelector('input[placeholder*="Search entities"]');
+                    if (searchInput) searchInput.focus();
+                }
+                
+                if (e.metaKey && e.key === 'k') {
+                    e.preventDefault();
+                    showToast('Quick command palette opened (demo)', 'info');
+                }
+            });
+            
+            // Easter egg: press "s" 3 times
+            let sCount = 0, last = 0;
+            document.addEventListener('keypress', function(e) {
+                if (e.key.toLowerCase() === 's') {
+                    const now = Date.now();
+                    if (now - last < 650) sCount++; else sCount = 1;
+                    last = now;
+                    if (sCount === 3) {
+                        sCount = 0;
+                        const frame = document.querySelector('.dashboard-frame');
+                        frame.style.boxShadow = '0 0 0 1px #10b98130, 0 25px 50px -12px rgb(0 0 0 / 0.5)';
+                        showToast('SOCINT v5.0 • Elite mode engaged', 'success');
+                        setTimeout(() => {
+                            if (frame) frame.style.boxShadow = '0 25px 50px -12px rgb(0 0 0 / 0.5), 0 10px 10px -6px rgb(0 0 0 / 0.4)';
+                        }, 1600);
+                    }
+                }
+            });
+        }
+
+        // Initialize everything
+        function initializeDashboard() {
+            initTailwind();
+            initKeyboard();
+            
+            // Subtle boot log
+            console.log('%c[SOCINT v5.0] Desktop dashboard initialized — 1440×900 professional mockup ready.', 'color:#64748b');
+            
+            // Optional: subtle welcome toast (disabled by default for clean presentation)
+            // setTimeout(() => showToast('All systems nominal • Last sync: moments ago', 'info', 2200), 1200);
+        }
+        
+        window.onload = initializeDashboard;
+        
+        // Expose helpers
+        window.SOCINT = {
+            refreshAll: () => location.reload(),
+            triggerThreat: () => investigateThreat(0)
+        };
+    </script>
+</body>
+</html>

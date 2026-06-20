@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCINT v5.0 • Correlation Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', system_ui, sans-serif; letter-spacing: -0.03em; }
+        
+        .dashboard-frame {
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+            border: 1px solid #1e293b;
+        }
+        
+        .node {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+        .node:hover { transform: scale(1.08); z-index: 10; }
+        
+        .connection-line {
+            stroke: #10b981;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+        
+        .section-header { font-weight: 600; letter-spacing: -0.025em; }
+        
+        .data-table th {
+            font-weight: 500;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-bar {
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 flex items-center justify-center min-h-screen p-6">
+    <!-- 1440x900 Frame -->
+    <div class="dashboard-frame w-[1440px] h-[900px] bg-[#020617] rounded-2xl overflow-hidden flex flex-col border border-slate-800">
+        
+        <!-- TOP BAR -->
+        <div class="h-14 bg-[#0f172a] border-b border-slate-700 px-6 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500">
+                    <i class="fa-solid fa-shield-halved text-white text-2xl"></i>
+                </div>
+                <div>
+                    <span class="font-display text-2xl font-semibold tracking-tighter text-white">SOCINT</span>
+                    <span class="text-emerald-400 text-xs font-mono tracking-widest ml-1">v5.0</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 text-sm">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span class="text-emerald-400 text-xs font-semibold">ALL SYSTEMS OPERATIONAL</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-600 overflow-hidden ring-2 ring-slate-700">
+                        <img src="https://i.pravatar.cc/32?img=47" alt="Admin">
+                    </div>
+                    <span class="text-sm text-white">Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-1 overflow-hidden">
+            
+            <!-- MAIN CONTENT -->
+            <div class="flex-1 flex flex-col p-6 overflow-hidden">
+                
+                <!-- HEADER -->
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-link text-emerald-400 text-3xl"></i>
+                            <h1 class="text-4xl font-semibold tracking-tighter text-white">Correlation Engine</h1>
+                        </div>
+                        <p class="text-slate-400 mt-1">Cross-platform identity resolution • 4 entities • 12 signals analyzed</p>
+                    </div>
+                    <button onclick="runBatchCorrelation()" 
+                            class="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition-colors text-white rounded-2xl font-semibold text-sm shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-play mr-1"></i>
+                        <span>Run Batch</span>
+                    </button>
+                </div>
+
+                <!-- MAIN VISUALIZATION (Network Graph) -->
+                <div class="panel bg-[#0f172a] border border-slate-700 rounded-2xl p-6 mb-5 flex-1 min-h-[380px] relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-project-diagram text-emerald-400"></i>
+                            <span class="font-semibold text-lg text-white">Entity Relationship Graph</span>
+                        </div>
+                        <div class="text-xs px-3 py-1 bg-slate-800 rounded-full text-slate-400">4 nodes • 3 connections • Avg score 88%</div>
+                    </div>
+                    
+                    <!-- Network Graph Container -->
+                    <div id="graph-container" class="relative w-full h-[320px] bg-[#020617] rounded-xl border border-slate-800">
+                        
+                        <!-- SVG for connections -->
+                        <svg id="graph-svg" class="absolute inset-0 w-full h-full" style="z-index: 1;"></svg>
+                        
+                        <!-- Nodes -->
+                        <!-- Center Node: Juan Perez -->
+                        <div onclick="selectNode(this, 'juan-perez')" 
+                             class="node absolute cursor-pointer flex flex-col items-center" 
+                             style="left: 42%; top: 38%; transform: translate(-50%, -50%); z-index: 10;">
+                            <div class="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center ring-4 ring-blue-400/40 shadow-2xl">
+                                <div class="text-center">
+                                    <div class="text-white text-xs font-bold">JUAN</div>
+                                    <div class="text-white text-xs font-bold -mt-0.5">PEREZ</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <div class="text-sm font-semibold text-white">Juan Perez</div>
+                                <div class="text-[10px] text-blue-400">Primary Entity • Risk 75</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Instagram Node -->
+                        <div onclick="selectNode(this, 'instagram')" 
+                             class="node absolute cursor-pointer flex flex-col items-center" 
+                             style="left: 18%; top: 22%; transform: translate(-50%, -50%);">
+                            <div class="w-14 h-14 rounded-full bg-pink-500 flex items-center justify-center ring-4 ring-pink-400/30">
+                                <i class="fa-brands fa-instagram text-white text-3xl"></i>
+                            </div>
+                            <div class="mt-1.5 text-center">
+                                <div class="text-xs font-semibold text-white">jperez_ig</div>
+                                <div class="text-[10px] text-pink-400">Instagram</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Twitter Node -->
+                        <div onclick="selectNode(this, 'twitter')" 
+                             class="node absolute cursor-pointer flex flex-col items-center" 
+                             style="left: 72%; top: 18%; transform: translate(-50%, -50%);">
+                            <div class="w-14 h-14 rounded-full bg-sky-500 flex items-center justify-center ring-4 ring-sky-400/30">
+                                <i class="fa-brands fa-twitter text-white text-3xl"></i>
+                            </div>
+                            <div class="mt-1.5 text-center">
+                                <div class="text-xs font-semibold text-white">jperez_tw</div>
+                                <div class="text-[10px] text-sky-400">Twitter / X</div>
+                            </div>
+                        </div>
+                        
+                        <!-- TikTok Node -->
+                        <div onclick="selectNode(this, 'tiktok')" 
+                             class="node absolute cursor-pointer flex flex-col items-center" 
+                             style="left: 18%; top: 68%; transform: translate(-50%, -50%);">
+                            <div class="w-14 h-14 rounded-full bg-black flex items-center justify-center ring-4 ring-slate-400/30 border border-slate-600">
+                                <i class="fa-brands fa-tiktok text-white text-3xl"></i>
+                            </div>
+                            <div class="mt-1.5 text-center">
+                                <div class="text-xs font-semibold text-white">jperez_tk</div>
+                                <div class="text-[10px] text-slate-400">TikTok</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Telegram Node -->
+                        <div onclick="selectNode(this, 'telegram')" 
+                             class="node absolute cursor-pointer flex flex-col items-center" 
+                             style="left: 72%; top: 68%; transform: translate(-50%, -50%);">
+                            <div class="w-14 h-14 rounded-full bg-cyan-500 flex items-center justify-center ring-4 ring-cyan-400/30">
+                                <i class="fa-brands fa-telegram text-white text-3xl"></i>
+                            </div>
+                            <div class="mt-1.5 text-center">
+                                <div class="text-xs font-semibold text-white">juanp</div>
+                                <div class="text-[10px] text-cyan-400">Telegram</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CORRELATION RESULTS TABLE -->
+                <div class="panel bg-[#0f172a] border border-slate-700 rounded-2xl flex flex-col flex-1 min-h-[260px]">
+                    <div class="px-5 pt-4 pb-3 flex items-center justify-between border-b border-slate-700">
+                        <span class="font-semibold text-white">Correlation Results</span>
+                        <span class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full">3 high-confidence matches</span>
+                    </div>
+                    
+                    <div class="overflow-auto flex-1">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-700 text-left">
+                                    <th class="px-5 py-3 text-xs font-medium text-slate-400">Entity A</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-slate-400">Platform A</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-slate-400">Entity B</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-slate-400">Platform B</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-slate-400">Score</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-slate-400">Confidence</th>
+                                    <th class="px-4 py-3 text-xs font-medium text-slate-400">Signals</th>
+                                    <th class="px-5 py-3 text-xs font-medium text-slate-400">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700 text-sm">
+                                <!-- Row 1 -->
+                                <tr onclick="selectCorrelationRow(this, 0)" class="hover:bg-slate-800/60 cursor-pointer correlation-row active">
+                                    <td class="px-5 py-3 font-medium text-white">jperez_ig</td>
+                                    <td class="px-4 py-3"><span class="text-pink-400">Instagram</span></td>
+                                    <td class="px-4 py-3 font-medium text-white">jperez_tw</td>
+                                    <td class="px-4 py-3"><span class="text-sky-400">Twitter</span></td>
+                                    <td class="px-4 py-3"><span class="font-mono text-emerald-400 font-semibold">95%</span></td>
+                                    <td class="px-4 py-3"><span class="px-2.5 py-px text-xs rounded bg-red-500/20 text-red-400">Critical</span></td>
+                                    <td class="px-4 py-3 text-xs text-slate-300">username, name</td>
+                                    <td class="px-5 py-3"><span class="px-3 py-1 text-xs rounded-full bg-emerald-500 text-white font-medium">Confirmed</span></td>
+                                </tr>
+                                
+                                <!-- Row 2 -->
+                                <tr onclick="selectCorrelationRow(this, 1)" class="hover:bg-slate-800/60 cursor-pointer correlation-row">
+                                    <td class="px-5 py-3 font-medium text-white">jperez_ig</td>
+                                    <td class="px-4 py-3"><span class="text-pink-400">Instagram</span></td>
+                                    <td class="px-4 py-3 font-medium text-white">jperez_tk</td>
+                                    <td class="px-4 py-3"><span class="text-slate-400">TikTok</span></td>
+                                    <td class="px-4 py-3"><span class="font-mono text-emerald-400 font-semibold">92%</span></td>
+                                    <td class="px-4 py-3"><span class="px-2.5 py-px text-xs rounded bg-red-500/20 text-red-400">Critical</span></td>
+                                    <td class="px-4 py-3 text-xs text-slate-300">username, bio</td>
+                                    <td class="px-5 py-3"><span class="px-3 py-1 text-xs rounded-full bg-emerald-500 text-white font-medium">Confirmed</span></td>
+                                </tr>
+                                
+                                <!-- Row 3 -->
+                                <tr onclick="selectCorrelationRow(this, 2)" class="hover:bg-slate-800/60 cursor-pointer correlation-row">
+                                    <td class="px-5 py-3 font-medium text-white">juanp</td>
+                                    <td class="px-4 py-3"><span class="text-cyan-400">Telegram</span></td>
+                                    <td class="px-4 py-3 font-medium text-white">jperez_ig</td>
+                                    <td class="px-4 py-3"><span class="text-pink-400">Instagram</span></td>
+                                    <td class="px-4 py-3"><span class="font-mono text-yellow-400 font-semibold">78%</span></td>
+                                    <td class="px-4 py-3"><span class="px-2.5 py-px text-xs rounded bg-yellow-500/20 text-yellow-400">High</span></td>
+                                    <td class="px-4 py-3 text-xs text-slate-300">username, name</td>
+                                    <td class="px-5 py-3"><span class="px-3 py-1 text-xs rounded-full bg-yellow-500 text-white font-medium">Pending</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIGNAL BREAKDOWN PANEL -->
+            <div class="w-80 border-l border-slate-700 bg-[#0f172a] flex flex-col flex-shrink-0">
+                <div class="p-5 border-b border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-chart-bar text-emerald-400"></i>
+                        <span class="font-semibold text-white">Signal Breakdown</span>
+                    </div>
+                    <div id="selected-correlation" class="text-xs text-emerald-400 mt-1">jperez_ig ↔ jperez_tw • 95%</div>
+                </div>
+                
+                <div class="p-5 flex-1 space-y-5 text-sm" id="signal-breakdown-content">
+                    <!-- Populated by JS -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">Username Similarity</span>
+                            <span class="font-mono text-emerald-400">100%</span>
+                        </div>
+                        <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[100%]"></div></div>
+                        <div class="text-[10px] text-slate-500 mt-1">Exact match on normalized username</div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">Name Similarity</span>
+                            <span class="font-mono text-emerald-400">85%</span>
+                        </div>
+                        <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[85%]"></div></div>
+                        <div class="text-[10px] text-slate-500 mt-1">Levenshtein distance + fuzzy match</div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300">Bio Overlap</span>
+                            <span class="font-mono text-emerald-400">60%</span>
+                        </div>
+                        <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[60%]"></div></div>
+                        <div class="text-[10px] text-slate-500 mt-1">Common keywords: "Mexico", "tech", "family"</div>
+                    </div>
+                    
+                    <div class="pt-3 border-t border-slate-700">
+                        <div class="text-xs text-slate-400 mb-2">Final Weighted Score</div>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl font-semibold text-emerald-400">95</span>
+                            <span class="text-emerald-400">/ 100</span>
+                        </div>
+                        <div class="text-xs text-emerald-400">Critical confidence • Auto-confirmed</div>
+                    </div>
+                </div>
+                
+                <div class="p-5 border-t border-slate-700 flex gap-3">
+                    <button onclick="confirmCorrelation()" 
+                            class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-sm font-semibold">Confirm</button>
+                    <button onclick="rejectCorrelation()" 
+                            class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-2xl text-sm font-semibold">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initGraph() {
+            const svg = document.getElementById('graph-svg');
+            svg.innerHTML = '';
+            
+            // Define connections with coordinates (approximate from absolute positioning)
+            const connections = [
+                { x1: 280, y1: 195, x2: 130, y2: 115, score: "95%", color: "#10b981", width: 4 }, // IG-TW
+                { x1: 280, y1: 195, x2: 130, y2: 295, score: "92%", color: "#10b981", width: 4 }, // IG-TK
+                { x1: 280, y1: 195, x2: 520, y2: 295, score: "78%", color: "#eab308", width: 2.5 }  // IG-TG
+            ];
+            
+            connections.forEach((conn, i) => {
+                // Line
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", conn.x1);
+                line.setAttribute("y1", conn.y1);
+                line.setAttribute("x2", conn.x2);
+                line.setAttribute("y2", conn.y2);
+                line.setAttribute("stroke", conn.color);
+                line.setAttribute("stroke-width", conn.width);
+                line.setAttribute("stroke-linecap", "round");
+                line.setAttribute("opacity", "0.85");
+                svg.appendChild(line);
+                
+                // Score label
+                const midX = (conn.x1 + conn.x2) / 2;
+                const midY = (conn.y1 + conn.y2) / 2 - 8;
+                
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", midX);
+                text.setAttribute("y", midY);
+                text.setAttribute("fill", conn.color);
+                text.setAttribute("font-size", "11");
+                text.setAttribute("font-weight", "600");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = conn.score;
+                svg.appendChild(text);
+            });
+        }
+        
+        let currentRow = null;
+        
+        function selectCorrelationRow(rowElement, index) {
+            // Deselect previous
+            document.querySelectorAll('.correlation-row').forEach(r => r.classList.remove('bg-emerald-900/20'));
+            rowElement.classList.add('bg-emerald-900/20');
+            currentRow = index;
+            
+            const content = document.getElementById('signal-breakdown-content');
+            const selectedLabel = document.getElementById('selected-correlation');
+            
+            if (index === 0) {
+                selectedLabel.textContent = 'jperez_ig ↔ jperez_tw • 95%';
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Username Similarity</span><span class="font-mono text-emerald-400">100%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[100%]"></div></div>
+                            <div class="text-[10px] text-slate-500 mt-1">Exact normalized username match</div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Name Similarity</span><span class="font-mono text-emerald-400">85%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[85%]"></div></div>
+                            <div class="text-[10px] text-slate-500 mt-1">Levenshtein + fuzzy matching</div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Bio Overlap</span><span class="font-mono text-emerald-400">60%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[60%]"></div></div>
+                            <div class="text-[10px] text-slate-500 mt-1">Shared keywords: Mexico, tech, family</div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-700">
+                            <div class="text-xs text-slate-400">Final Weighted Score</div>
+                            <div class="text-4xl font-semibold text-emerald-400">95 <span class="text-base">/ 100</span></div>
+                            <div class="text-emerald-400 text-xs">Critical • Auto-confirmed</div>
+                        </div>
+                    </div>`;
+            } else if (index === 1) {
+                selectedLabel.textContent = 'jperez_ig ↔ jperez_tk • 92%';
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Username Similarity</span><span class="font-mono text-emerald-400">100%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[100%]"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Bio Similarity</span><span class="font-mono text-emerald-400">78%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[78%]"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Avatar Match</span><span class="font-mono text-emerald-400">65%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-emerald-500 rounded-full w-[65%]"></div></div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-700">
+                            <div class="text-xs text-slate-400">Final Weighted Score</div>
+                            <div class="text-4xl font-semibold text-emerald-400">92 <span class="text-base">/ 100</span></div>
+                            <div class="text-emerald-400 text-xs">Critical • Confirmed</div>
+                        </div>
+                    </div>`;
+            } else {
+                selectedLabel.textContent = 'juanp ↔ jperez_ig • 78%';
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Username Similarity</span><span class="font-mono text-yellow-400">92%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-yellow-500 rounded-full w-[92%]"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Name Similarity</span><span class="font-mono text-yellow-400">70%</span></div>
+                            <div class="h-1.5 bg-slate-800 rounded-full"><div class="h-1.5 bg-yellow-500 rounded-full w-[70%]"></div></div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-700">
+                            <div class="text-xs text-slate-400">Final Weighted Score</div>
+                            <div class="text-4xl font-semibold text-yellow-400">78 <span class="text-base">/ 100</span></div>
+                            <div class="text-yellow-400 text-xs">High • Pending review</div>
+                        </div>
+                    </div>`;
+            }
+        }
+        
+        function selectNode(nodeEl, type) {
+            document.querySelectorAll('.node').forEach(n => n.style.boxShadow = '');
+            nodeEl.style.boxShadow = '0 0 0 3px #10b98130, 0 10px 15px -3px rgb(0 0 0 / 0.3)';
+            
+            const messages = {
+                'juan-perez': 'Primary entity selected • 4 correlated identities',
+                'instagram': 'Instagram profile jperez_ig • 342 posts analyzed',
+                'twitter': 'Twitter profile jperez_tw • 95% correlation with IG',
+                'tiktok': 'TikTok profile jperez_tk • 92% correlation',
+                'telegram': 'Telegram profile juanp • 78% correlation'
+            };
+            
+            showToast(messages[type] || 'Node selected', 'info', 1800);
+        }
+        
+        function runBatchCorrelation() {
+            showToast('Batch correlation started across 28 platforms...', 'info');
+            setTimeout(() => {
+                showToast('Batch complete • 7 new correlations found (3 critical)', 'success');
+            }, 1650);
+        }
+        
+        function confirmCorrelation() {
+            showToast('Correlation confirmed and merged into knowledge graph', 'success');
+        }
+        
+        function rejectCorrelation() {
+            showToast('Correlation rejected and flagged for review', 'info');
+        }
+        
+        function showToast(message, type = 'info', duration = 2200) {
+            const container = document.createElement('div');
+            container.className = `fixed bottom-6 right-6 px-5 py-3 rounded-2xl border text-sm flex items-center gap-3 shadow-xl z-[300] ${type === 'success' ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-200'}`;
+            container.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+            document.body.appendChild(container);
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.2s';
+                container.style.opacity = '0';
+                setTimeout(() => container.remove(), 200);
+            }, duration);
+        }
+        
+        function initialize() {
+            initGraph();
+            
+            // Select first row by default
+            setTimeout(() => {
+                const firstRow = document.querySelector('.correlation-row');
+                if (firstRow) {
+                    firstRow.classList.add('bg-emerald-900/20');
+                    selectCorrelationRow(firstRow, 0);
+                }
+            }, 300);
+            
+            // Keyboard hint
+            console.log('%c[SOCINT] Correlation Engine initialized', 'color:#64748b');
+        }
+        
+        window.onload = initialize;
+    </script>
+</body>
+</html>

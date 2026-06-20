@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCINT v5.0 • Entity Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', system_ui, sans-serif; letter-spacing: -0.03em; }
+        .dashboard-frame { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5); border: 1px solid #1e293b; }
+        .entity-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .entity-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        .risk-circle { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-950 flex items-center justify-center min-h-screen p-6">
+    <div class="dashboard-frame w-[1440px] h-[900px] bg-[#020617] rounded-2xl overflow-hidden flex flex-col border border-slate-800">
+        
+        <!-- TOP BAR -->
+        <div class="h-14 bg-[#0f172a] border-b border-slate-700 px-6 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500">
+                    <i class="fa-solid fa-shield-halved text-white text-2xl"></i>
+                </div>
+                <div>
+                    <span class="font-display text-2xl font-semibold tracking-tighter text-white">SOCINT</span>
+                    <span class="text-emerald-400 text-xs font-mono tracking-widest ml-1">v5.0</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <div class="px-3 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span class="text-emerald-400 text-xs font-semibold">ALL SYSTEMS OPERATIONAL</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-600 overflow-hidden ring-2 ring-slate-700">
+                        <img src="https://i.pravatar.cc/32?img=47" alt="Admin">
+                    </div>
+                    <span class="text-sm text-white">Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-1 overflow-hidden">
+            
+            <!-- LEFT SIDEBAR -->
+            <div class="w-64 bg-[#0f172a] border-r border-slate-700 flex flex-col flex-shrink-0">
+                <div class="p-5">
+                    <div class="flex items-center gap-3 px-1 mb-6">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center">
+                            <i class="fa-solid fa-shield-halved text-white"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold tracking-tighter">SOCINT</div>
+                            <div class="text-emerald-400 text-xs -mt-0.5">v5.0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1 text-sm">
+                        <div class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-emerald-400 bg-[#020617]">
+                            <i class="fa-solid fa-users w-4"></i>
+                            <span class="font-medium">Entities</span>
+                        </div>
+                        <div class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-link w-4"></i>
+                            <span class="font-medium">Correlations</span>
+                        </div>
+                        <div class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-project-diagram w-4"></i>
+                            <span class="font-medium">Knowledge Graph</span>
+                        </div>
+                        <div class="nav-item flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:text-white cursor-pointer">
+                            <i class="fa-solid fa-shield-alt w-4"></i>
+                            <span class="font-medium">Risk Center</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-auto p-4 border-t border-slate-700">
+                    <div class="px-3 py-2 text-xs text-slate-400">4 entities • 12 correlations</div>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="flex-1 flex flex-col p-6 overflow-hidden">
+                
+                <!-- HEADER -->
+                <div class="flex items-end justify-between mb-5">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-4xl font-semibold tracking-tighter text-white">Entities</h1>
+                            <span class="px-3 py-1 text-sm rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">4 total</span>
+                        </div>
+                        <p class="text-slate-400 mt-1">Identity intelligence database</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <!-- Search -->
+                        <div class="relative w-72">
+                            <i class="fa-solid fa-search absolute left-4 top-3 text-slate-400"></i>
+                            <input type="text" placeholder="Search entities..." 
+                                   class="w-full bg-[#0f172a] border border-slate-700 focus:border-emerald-500 pl-11 pr-4 py-2.5 rounded-2xl text-sm outline-none">
+                        </div>
+                        
+                        <!-- Filters -->
+                        <select class="bg-[#0f172a] border border-slate-700 text-sm rounded-2xl px-4 py-2.5 outline-none">
+                            <option>All Types</option>
+                            <option>Person</option>
+                            <option>Organization</option>
+                            <option>Location</option>
+                        </select>
+                        
+                        <select class="bg-[#0f172a] border border-slate-700 text-sm rounded-2xl px-4 py-2.5 outline-none">
+                            <option>Risk Score</option>
+                            <option>Confidence</option>
+                            <option>Last Updated</option>
+                        </select>
+                        
+                        <button onclick="createNewEntity()" 
+                                class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-sm font-semibold">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>New Entity</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ENTITY GRID -->
+                <div class="grid grid-cols-2 gap-5 flex-1 overflow-auto pb-4" style="grid-auto-rows: min-content;">
+                    
+                    <!-- Card 1: Juan Perez -->
+                    <div class="entity-card bg-[#0f172a] border border-slate-700 rounded-2xl p-5 flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-2xl ring-4 ring-amber-500/30">JP</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-xl text-white">Juan Perez</span>
+                                        <span class="px-2 py-px text-xs rounded bg-amber-500/20 text-amber-400">Person</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400">Primary Target • Mexico</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="risk-circle w-11 h-11 rounded-full border-[3.5px] border-amber-400 flex items-center justify-center mx-auto">
+                                    <span class="text-lg font-bold text-amber-400">75</span>
+                                </div>
+                                <div class="text-[10px] text-amber-400 mt-0.5">RISK</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-xs">
+                            <div class="text-slate-400">Aliases</div>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                <span class="px-2 py-px bg-slate-800 rounded text-xs">jperez</span>
+                                <span class="px-2 py-px bg-slate-800 rounded text-xs">juanp</span>
+                                <span class="px-2 py-px bg-slate-800 rounded text-xs">juan.perez</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 flex items-center justify-between text-xs">
+                            <div>
+                                <span class="text-emerald-400">Mexico</span> 
+                                <span class="text-slate-500">•</span> 
+                                <span class="text-emerald-400">92% confidence</span>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-medium">Active</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-700 text-xs">
+                            <div class="flex gap-1">
+                                <span class="px-2 py-px bg-pink-500/20 text-pink-400 rounded text-[10px]">target</span>
+                                <span class="px-2 py-px bg-sky-500/20 text-sky-400 rounded text-[10px]">social-media</span>
+                            </div>
+                            <div class="flex gap-1 text-emerald-400">
+                                <i class="fa-brands fa-instagram"></i>
+                                <i class="fa-brands fa-twitter"></i>
+                                <i class="fa-brands fa-tiktok"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="viewEntity(0)" class="flex-1 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">View</button>
+                            <button onclick="editEntity(0)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Edit</button>
+                            <button onclick="correlateEntity(0)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Correlate</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: TechCorp SA -->
+                    <div class="entity-card bg-[#0f172a] border border-slate-700 rounded-2xl p-5 flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-slate-600 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-building text-3xl"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-xl text-white">TechCorp SA</span>
+                                        <span class="px-2 py-px text-xs rounded bg-sky-500/20 text-sky-400">Organization</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400">Technology company • Suspected leaks</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="risk-circle w-11 h-11 rounded-full border-[3.5px] border-emerald-400 flex items-center justify-center mx-auto">
+                                    <span class="text-lg font-bold text-emerald-400">45</span>
+                                </div>
+                                <div class="text-[10px] text-emerald-400 mt-0.5">RISK</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-5 text-xs text-slate-300">
+                            Technology company with suspected data leaks in 2025 breach reports.
+                        </div>
+                        
+                        <div class="mt-auto pt-4 flex items-center justify-between text-xs">
+                            <div><span class="text-emerald-400">68% confidence</span></div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-medium">Monitored</span>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="viewEntity(1)" class="flex-1 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">View</button>
+                            <button onclick="editEntity(1)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Edit</button>
+                            <button onclick="correlateEntity(1)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Correlate</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Mexico City -->
+                    <div class="entity-card bg-[#0f172a] border border-slate-700 rounded-2xl p-5 flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                    <i class="fa-solid fa-map-marker-alt text-3xl"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-xl text-white">Mexico City</span>
+                                        <span class="px-2 py-px text-xs rounded bg-blue-500/20 text-blue-400">Location</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400">19.4326, -99.1332</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="risk-circle w-11 h-11 rounded-full border-[3.5px] border-blue-400 flex items-center justify-center mx-auto">
+                                    <span class="text-lg font-bold text-blue-400">10</span>
+                                </div>
+                                <div class="text-[10px] text-blue-400 mt-0.5">RISK</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-xs">
+                            <div class="text-slate-400">Source: EXIF Data • Multiple media items</div>
+                            <div class="mt-1">Primary location associated with target activity.</div>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 flex items-center justify-between text-xs">
+                            <div><span class="text-emerald-400">98% confidence</span></div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-medium">Verified</span>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="viewEntity(2)" class="flex-1 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">View</button>
+                            <button onclick="editEntity(2)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Edit</button>
+                            <button onclick="correlateEntity(2)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Correlate</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Maria Garcia -->
+                    <div class="entity-card bg-[#0f172a] border border-slate-700 rounded-2xl p-5 flex flex-col">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-2xl ring-4 ring-emerald-500/30">MG</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-semibold text-xl text-white">Maria Garcia</span>
+                                        <span class="px-2 py-px text-xs rounded bg-emerald-500/20 text-emerald-400">Person</span>
+                                    </div>
+                                    <div class="text-xs text-slate-400">Associate • Family link suspected</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <div class="risk-circle w-11 h-11 rounded-full border-[3.5px] border-emerald-400 flex items-center justify-center mx-auto">
+                                    <span class="text-lg font-bold text-emerald-400">30</span>
+                                </div>
+                                <div class="text-[10px] text-emerald-400 mt-0.5">RISK</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-xs">
+                            <div class="flex flex-wrap gap-1">
+                                <span class="px-2 py-px bg-emerald-500/20 text-emerald-400 rounded text-xs">family</span>
+                                <span class="px-2 py-px bg-emerald-500/20 text-emerald-400 rounded text-xs">associate</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto pt-4 flex items-center justify-between text-xs">
+                            <div><span class="text-emerald-400">78% confidence</span></div>
+                            <span class="px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-medium">Active</span>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="viewEntity(3)" class="flex-1 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">View</button>
+                            <button onclick="editEntity(3)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Edit</button>
+                            <button onclick="correlateEntity(3)" class="flex-1 py-2 text-xs bg-slate-700 hover:bg-slate-600 rounded-2xl font-medium">Correlate</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewEntity(id) {
+            const names = ['Juan Perez', 'TechCorp SA', 'Mexico City', 'Maria Garcia'];
+            showToast(`Opening detailed view for ${names[id]}...`, 'info');
+        }
+        
+        function editEntity(id) {
+            showToast('Opening entity editor...', 'info');
+        }
+        
+        function correlateEntity(id) {
+            showToast('Opening Correlation Engine with pre-selected entity...', 'info');
+        }
+        
+        function createNewEntity() {
+            showToast('New entity creation form opened', 'success');
+        }
+        
+        function showToast(message, type = 'info', duration = 2200) {
+            const el = document.createElement('div');
+            el.className = `fixed bottom-6 right-6 px-5 py-3 rounded-2xl border text-sm flex items-center gap-3 z-[300] shadow-xl ${type === 'success' ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-200'}`;
+            el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} mr-2"></i> ${message}`;
+            document.body.appendChild(el);
+            setTimeout(() => { el.style.transition = 'all 0.2s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 200); }, duration);
+        }
+        
+        function initialize() {
+            console.log('%c[SOCINT] Entity Explorer initialized', 'color:#64748b');
+        }
+        window.onload = initialize;
+    </script>
+</body>
+</html>

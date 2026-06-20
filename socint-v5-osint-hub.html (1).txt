@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOCINT v5.0 • OSINT Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', 'Inter', system_ui, sans-serif; letter-spacing: -0.03em; }
+        .dashboard-frame { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5); border: 1px solid #1e293b; }
+        .platform-tab { transition: all 0.1s ease; }
+        .platform-tab.active { border-bottom: 3px solid #10b981; color: white; }
+        .media-thumb { transition: transform 0.2s ease; }
+        .media-thumb:hover { transform: scale(1.03); }
+    </style>
+</head>
+<body class="bg-slate-950 flex items-center justify-center min-h-screen p-6">
+    <div class="dashboard-frame w-[1440px] h-[900px] bg-[#020617] rounded-2xl overflow-hidden flex flex-col border border-slate-800">
+        
+        <!-- TOP BAR -->
+        <div class="h-14 bg-[#0f172a] border-b border-slate-700 px-6 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500">
+                    <i class="fa-solid fa-shield-halved text-white text-2xl"></i>
+                </div>
+                <div>
+                    <span class="font-display text-2xl font-semibold tracking-tighter text-white">SOCINT</span>
+                    <span class="text-emerald-400 text-xs font-mono tracking-widest ml-1">v5.0</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <div class="px-3 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-2">
+                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span class="text-emerald-400 text-xs font-semibold">ALL SYSTEMS OPERATIONAL</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-600 overflow-hidden ring-2 ring-slate-700">
+                        <img src="https://i.pravatar.cc/32?img=47" alt="Admin">
+                    </div>
+                    <span class="text-sm text-white">Admin</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-1 overflow-hidden">
+            <div class="flex-1 flex flex-col p-6 overflow-hidden">
+                
+                <!-- HEADER -->
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-globe text-emerald-400 text-3xl"></i>
+                            <h1 class="text-4xl font-semibold tracking-tighter text-white">OSINT Hub</h1>
+                        </div>
+                        <p class="text-slate-400 mt-1">Social media intelligence collection • 6 platforms connected</p>
+                    </div>
+                    <button onclick="startNewScan()" 
+                            class="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 transition-colors text-white rounded-2xl font-semibold text-sm shadow-lg shadow-emerald-600/30">
+                        <i class="fa-solid fa-plus mr-1"></i>
+                        <span>New Scan</span>
+                    </button>
+                </div>
+
+                <!-- PLATFORM TABS -->
+                <div class="flex items-center gap-1 border-b border-slate-700 mb-5">
+                    <div onclick="switchPlatformTab(this, 'instagram')" class="platform-tab active flex items-center gap-2 px-5 py-3 text-sm font-medium cursor-pointer text-white border-b-2 border-emerald-500">
+                        <i class="fa-brands fa-instagram text-pink-400"></i>
+                        <span>Instagram</span>
+                    </div>
+                    <div onclick="switchPlatformTab(this, 'twitter')" class="platform-tab flex items-center gap-2 px-5 py-3 text-sm font-medium cursor-pointer text-slate-300 hover:text-white">
+                        <i class="fa-brands fa-twitter text-sky-400"></i>
+                        <span>Twitter / X</span>
+                    </div>
+                    <div onclick="switchPlatformTab(this, 'tiktok')" class="platform-tab flex items-center gap-2 px-5 py-3 text-sm font-medium cursor-pointer text-slate-300 hover:text-white">
+                        <i class="fa-brands fa-tiktok"></i>
+                        <span>TikTok</span>
+                    </div>
+                    <div onclick="switchPlatformTab(this, 'reddit')" class="platform-tab flex items-center gap-2 px-5 py-3 text-sm font-medium cursor-pointer text-slate-300 hover:text-white">
+                        <i class="fa-brands fa-reddit text-orange-400"></i>
+                        <span>Reddit</span>
+                    </div>
+                    <div onclick="switchPlatformTab(this, 'telegram')" class="platform-tab flex items-center gap-2 px-5 py-3 text-sm font-medium cursor-pointer text-slate-300 hover:text-white">
+                        <i class="fa-brands fa-telegram text-cyan-400"></i>
+                        <span>Telegram</span>
+                    </div>
+                    <div onclick="switchPlatformTab(this, 'youtube')" class="platform-tab flex items-center gap-2 px-5 py-3 text-sm font-medium cursor-pointer text-slate-300 hover:text-white">
+                        <i class="fa-brands fa-youtube text-red-400"></i>
+                        <span>YouTube</span>
+                    </div>
+                </div>
+
+                <!-- ACTIVE TAB CONTENT: Instagram -->
+                <div id="instagram-content" class="flex-1 grid grid-cols-2 gap-5 min-h-0">
+                    
+                    <!-- LEFT: Input Panel -->
+                    <div class="bg-[#0f172a] border border-slate-700 rounded-2xl p-5 flex flex-col">
+                        <div class="font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-search"></i>
+                            <span>Instagram Scan Configuration</span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="text-xs text-slate-400 block mb-1.5">Target Username</label>
+                            <div class="flex items-center bg-[#020617] border border-slate-700 rounded-2xl px-4">
+                                <span class="text-emerald-400 font-mono">@</span>
+                                <input id="target-username" type="text" value="jperez_ig" class="flex-1 bg-transparent outline-none px-2 py-3 text-white font-mono">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="text-xs text-slate-400 block mb-2">Data to Collect</label>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <label class="flex items-center gap-2 px-3 py-2 bg-[#020617] rounded-xl cursor-pointer"><input type="checkbox" checked class="accent-emerald-500"> <span>Profile</span></label>
+                                <label class="flex items-center gap-2 px-3 py-2 bg-[#020617] rounded-xl cursor-pointer"><input type="checkbox" checked class="accent-emerald-500"> <span>Posts</span></label>
+                                <label class="flex items-center gap-2 px-3 py-2 bg-[#020617] rounded-xl cursor-pointer"><input type="checkbox" checked class="accent-emerald-500"> <span>Media</span></label>
+                                <label class="flex items-center gap-2 px-3 py-2 bg-[#020617] rounded-xl cursor-pointer"><input type="checkbox" class="accent-emerald-500"> <span>Followers</span></label>
+                                <label class="flex items-center gap-2 px-3 py-2 bg-[#020617] rounded-xl cursor-pointer"><input type="checkbox" class="accent-emerald-500"> <span>Comments</span></label>
+                                <label class="flex items-center gap-2 px-3 py-2 bg-[#020617] rounded-xl cursor-pointer"><input type="checkbox" checked class="accent-emerald-500"> <span>EXIF Data</span></label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <details class="text-sm">
+                                <summary class="cursor-pointer text-emerald-400 flex items-center gap-2">Advanced Options <i class="fa-solid fa-chevron-down text-xs"></i></summary>
+                                <div class="mt-3 pl-1 space-y-2 text-xs">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="accent-emerald-500"> Deep media analysis (OCR + faces)</label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" checked class="accent-emerald-500"> Follower network mapping</label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="accent-emerald-500"> Story archive</label>
+                                </div>
+                            </details>
+                        </div>
+                        
+                        <button onclick="startInstagramScan()" 
+                                class="mt-auto w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-2xl flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start Scan</span>
+                        </button>
+                        
+                        <div class="text-center text-xs text-slate-500 mt-3">Last: @jperez_ig • 342 posts • 14:30</div>
+                    </div>
+                    
+                    <!-- RIGHT: Results Panel -->
+                    <div class="bg-[#0f172a] border border-slate-700 rounded-2xl p-5 flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="font-semibold text-white">Scan Results • @jperez_ig</span>
+                            <span class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full">Completed</span>
+                        </div>
+                        
+                        <!-- Profile Card -->
+                        <div class="flex gap-4 bg-[#020617] p-4 rounded-2xl mb-4">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-700 flex-shrink-0 overflow-hidden">
+                                <img src="https://i.pravatar.cc/64?img=32" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-lg text-white">@jperez_ig</span>
+                                    <span class="text-xs px-2 py-px bg-emerald-500/20 text-emerald-400 rounded">Verified</span>
+                                </div>
+                                <div class="text-sm text-slate-300">Juan Perez • Mexico City</div>
+                                <div class="text-xs text-slate-400 mt-1">1,284 posts • 48.2k followers • 892 following</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Media Grid -->
+                        <div class="mb-3">
+                            <div class="flex items-center justify-between text-xs mb-2 px-1">
+                                <span class="text-slate-400">Recent Media (6 of 342)</span>
+                                <button onclick="downloadAllMedia()" class="text-emerald-400 hover:text-emerald-300 text-xs font-medium">Download All →</button>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="media-thumb aspect-square bg-slate-700 rounded-xl overflow-hidden"><img src="https://picsum.photos/id/1011/120/120" class="w-full h-full object-cover"></div>
+                                <div class="media-thumb aspect-square bg-slate-700 rounded-xl overflow-hidden"><img src="https://picsum.photos/id/1005/120/120" class="w-full h-full object-cover"></div>
+                                <div class="media-thumb aspect-square bg-slate-700 rounded-xl overflow-hidden"><img src="https://picsum.photos/id/201/120/120" class="w-full h-full object-cover"></div>
+                                <div class="media-thumb aspect-square bg-slate-700 rounded-xl overflow-hidden"><img src="https://picsum.photos/id/29/120/120" class="w-full h-full object-cover"></div>
+                                <div class="media-thumb aspect-square bg-slate-700 rounded-xl overflow-hidden"><img src="https://picsum.photos/id/160/120/120" class="w-full h-full object-cover"></div>
+                                <div class="media-thumb aspect-square bg-slate-700 rounded-xl overflow-hidden"><img src="https://picsum.photos/id/251/120/120" class="w-full h-full object-cover"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sentiment -->
+                        <div>
+                            <div class="text-xs text-slate-400 mb-1.5 px-1">Sentiment Analysis</div>
+                            <div class="flex items-center gap-3 text-xs">
+                                <div class="flex-1">
+                                    <div class="flex justify-between mb-1"><span class="text-emerald-400">Positive</span><span class="text-emerald-400">68%</span></div>
+                                    <div class="h-2 bg-slate-800 rounded-full"><div class="h-2 bg-emerald-500 rounded-full w-[68%]"></div></div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between mb-1"><span class="text-red-400">Negative</span><span class="text-red-400">12%</span></div>
+                                    <div class="h-2 bg-slate-800 rounded-full"><div class="h-2 bg-red-500 rounded-full w-[12%]"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT SCANS TABLE -->
+                <div class="mt-5 bg-[#0f172a] border border-slate-700 rounded-2xl p-4">
+                    <div class="font-semibold text-sm mb-3 px-1">Recent Scans</div>
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-xs text-slate-400 border-b border-slate-700">
+                                <th class="text-left px-3 py-2">Platform</th>
+                                <th class="text-left px-3 py-2">Target</th>
+                                <th class="text-left px-3 py-2">Status</th>
+                                <th class="text-left px-3 py-2">Results</th>
+                                <th class="text-left px-3 py-2">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-slate-700">
+                            <tr>
+                                <td class="px-3 py-2.5"><span class="text-pink-400">Instagram</span></td>
+                                <td class="px-3 py-2.5 font-mono">@jperez_ig</td>
+                                <td class="px-3 py-2.5"><span class="px-2.5 py-px text-xs rounded bg-emerald-500 text-white">Completed 100%</span></td>
+                                <td class="px-3 py-2.5">342 posts</td>
+                                <td class="px-3 py-2.5 text-xs text-slate-400 font-mono">14:30</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 py-2.5"><span class="text-slate-400">TikTok</span></td>
+                                <td class="px-3 py-2.5 font-mono">@jperez_tk</td>
+                                <td class="px-3 py-2.5"><span class="px-2.5 py-px text-xs rounded bg-yellow-500 text-white">Running 65%</span></td>
+                                <td class="px-3 py-2.5">58 videos</td>
+                                <td class="px-3 py-2.5 text-xs text-slate-400 font-mono">14:10</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 py-2.5"><span class="text-sky-400">Twitter</span></td>
+                                <td class="px-3 py-2.5 font-mono">@jperez_tw</td>
+                                <td class="px-3 py-2.5"><span class="px-2.5 py-px text-xs rounded bg-slate-600 text-white">Queued 0%</span></td>
+                                <td class="px-3 py-2.5">—</td>
+                                <td class="px-3 py-2.5 text-xs text-slate-400 font-mono">14:15</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchPlatformTab(tabElement, platform) {
+            document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active', 'border-emerald-500', 'text-white'));
+            document.querySelectorAll('.platform-tab').forEach(t => t.classList.add('text-slate-300'));
+            
+            tabElement.classList.add('active', 'border-emerald-500', 'text-white');
+            tabElement.classList.remove('text-slate-300');
+            
+            // For demo, only Instagram content is fully built. Show toast for others.
+            if (platform !== 'instagram') {
+                showToast(`Switching to ${platform.charAt(0).toUpperCase() + platform.slice(1)} view...`, 'info');
+            }
+        }
+        
+        function startInstagramScan() {
+            const username = document.getElementById('target-username').value || 'jperez_ig';
+            showToast(`Starting deep scan on @${username}...`, 'info');
+            
+            setTimeout(() => {
+                showToast(`Scan completed • 342 posts • 47 media items extracted`, 'success');
+            }, 2100);
+        }
+        
+        function startNewScan() {
+            showToast('Opening new multi-platform scan wizard...', 'info');
+        }
+        
+        function downloadAllMedia() {
+            showToast('Preparing archive (2.4 GB) • Download started', 'success');
+        }
+        
+        function showToast(message, type = 'info', duration = 2200) {
+            const el = document.createElement('div');
+            el.className = `fixed bottom-6 right-6 px-5 py-3 rounded-2xl border text-sm flex items-center gap-3 z-[300] shadow-xl ${type === 'success' ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-200'}`;
+            el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} mr-2"></i> ${message}`;
+            document.body.appendChild(el);
+            setTimeout(() => { el.style.transition = 'all 0.2s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 200); }, duration);
+        }
+        
+        function initialize() {
+            console.log('%c[SOCINT] OSINT Hub initialized', 'color:#64748b');
+        }
+        window.onload = initialize;
+    </script>
+</body>
+</html>
