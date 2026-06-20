@@ -1,0 +1,165 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║     TERMUX ALL-IN-ONE OSINT (ROBUST v2.0)                                   ║
+║  Error-resistant • Idempotent • Clear progress • Production ready           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[0;36m[2026-06-07 11:45:46][0m Starting ROBUST All-in-One OSINT bootstrap | FORCE=1
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 0: VALIDATION[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Termux aarch64 detected
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 1: PYTHON CLEANUP[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+python3.11 is already the newest version (3.11.10).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Requirement already satisfied: setuptools in /data/data/com.termux/files/usr/lib/python3.11/site-packages (82.0.1)
+Requirement already satisfied: pip in /data/data/com.termux/files/usr/lib/python3.11/site-packages (26.1.2)
+[0;32m[INFO][0m Python: Python 3.11.10
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 2: SYSTEM PACKAGES + uv[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;32m[INFO][0m uv: uv 0.11.19 (aarch64-linux-android)
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 3: STORAGE[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+
+It appears that directory '~/storage' already exists.
+This script is going to rebuild its structure from
+scratch, wiping all dangling files. The actual storage
+content IS NOT going to be deleted.
+
+[0;32m[INFO][0m Storage ready
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 4: VIRTUAL ENVIRONMENT + PACKAGES (This may take time)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1;33m[WARN][0m Removing old venv...
+[0;36m[2026-06-07 11:46:23][0m Creating new venv...
+[0;36m[2026-06-07 11:46:38][0m Upgrading pip + uv inside venv...
+      which contains an integrated version of this command.
+        warn(
+      Python reports SOABI: cpython-311
+      Unsupported platform: 311
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║     TERMUX ALL-IN-ONE OSINT (ROBUST v2.0)                                   ║
+║  Error-resistant • Idempotent • Clear progress • Production ready           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[0;36m[2026-06-07 12:27:10][0m Starting ROBUST All-in-One OSINT bootstrap | FORCE=0
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 0: VALIDATION[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Termux aarch64 detected
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 1: PYTHON CLEANUP[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+python3.11 is already the newest version (3.11.10).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Requirement already satisfied: setuptools in /data/data/com.termux/files/usr/lib/python3.11/site-packages (82.0.1)
+Requirement already satisfied: pip in /data/data/com.termux/files/usr/lib/python3.11/site-packages (26.1.2)
+[0;32m[INFO][0m Python: Python 3.11.10
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 2: SYSTEM PACKAGES + uv[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;32m[INFO][0m uv: uv 0.11.19 (aarch64-linux-android)
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 3: STORAGE[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+
+It appears that directory '~/storage' already exists.
+This script is going to rebuild its structure from
+scratch, wiping all dangling files. The actual storage
+content IS NOT going to be deleted.
+
+Aborting configuration and leaving directory '~/storage' intact.
+[0;32m[INFO][0m Storage ready
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 4: VIRTUAL ENVIRONMENT + PACKAGES (This may take time)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Existing healthy venv detected. Skipping recreation.
+[0;36m[2026-06-07 12:51:17][0m Upgrading pip + uv inside venv...
+      which contains an integrated version of this command.
+        warn(
+      Python reports SOABI: cpython-311
+      Unsupported platform: 311
+
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║     TERMUX ALL-IN-ONE OSINT (ROBUST v2.2)                                   ║
+║  100% $HOME paths • Error-resistant • Production ready                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[0;36m[2026-06-07 13:43:30][0m Starting ROBUST All-in-One OSINT bootstrap | FORCE=0
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 0: VALIDATION[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Termux aarch64 detected
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 1: PYTHON CLEANUP[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+python3.11 is already the newest version (3.11.10).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Installing collected packages: setuptools, pip
+Successfully installed pip-24.0 setuptools-65.5.0
+[0;32m[INFO][0m Python: Python 3.11.10
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 2: SYSTEM PACKAGES + uv[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;32m[INFO][0m uv ready
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 3: STORAGE[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+
+It appears that directory '~/storage' already exists.
+This script is going to rebuild its structure from
+scratch, wiping all dangling files. The actual storage
+content IS NOT going to be deleted.
+
+Aborting configuration and leaving directory '~/storage' intact.
+[0;32m[INFO][0m Storage ready at /data/data/com.termux/files/home/storage/shared/OSINT/
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 4: VIRTUAL ENVIRONMENT + PACKAGES[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Healthy venv already exists. Skipping recreation.
+[0;36m[2026-06-07 14:46:37][0m Upgrading pip + uv inside venv...
+      which contains an integrated version of this command.
+        warn(
+      Python reports SOABI: cpython-311
+      Unsupported platform: 311
+

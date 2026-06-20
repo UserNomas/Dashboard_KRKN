@@ -1,0 +1,178 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           TERMUX ALL-IN-ONE OSINT BOOTSTRAP (v1.0)                          ║
+║  Full remediation + Clean venv + uv + Optimizations + Job tools             ║
+║  Target: Android 15 Termux | Production OSINT / Media / Image Workflows     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[0;36m[2026-06-07 11:30:28][0m Starting ALL-IN-ONE OSINT bootstrap | FORCE=0
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 0: VALIDATION[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Termux detected. Architecture: aarch64
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 1: PYTHON REMEDIATION (Remove EOL 3.8 + Fix 3.11)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1;33m[WARN][0m python3.8 found — removing (source of previous breakage)
+Remove python3.8 now? [y/N] 
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  python3.8 python3.8-cross python3.8-static python3.8-tkinter
+0 upgraded, 0 newly installed, 4 to remove and 0 not upgraded.
+After this operation, 308 MB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 81213 files and directories currently installed.)
+Removing python3.8-tkinter (3.8.20) ...
+Removing python3.8-static (3.8.20) ...
+Removing python3.8 (3.8.20) ...
+Uninstalling python modules...
+Deleting remaining files from site-packages...
+Removing python3.8-cross (3.8.20) ...
+[0;36m[2026-06-07 11:30:48][0m Ensuring clean python3.11...
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           TERMUX ALL-IN-ONE OSINT BOOTSTRAP (v1.0)                          ║
+║  Full remediation + Clean venv + uv + Optimizations + Job tools             ║
+║  Target: Android 15 Termux | Production OSINT / Media / Image Workflows     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[0;36m[2026-06-07 11:32:35][0m Starting ALL-IN-ONE OSINT bootstrap | FORCE=1
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 0: VALIDATION[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Termux detected. Architecture: aarch64
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 1: PYTHON REMEDIATION (Remove EOL 3.8 + Fix 3.11)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;36m[2026-06-07 11:32:36][0m Ensuring clean python3.11...
+Reading state information...
+python3.11 is already the newest version (3.11.10).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;36m[2026-06-07 11:32:37][0m Fixing default symlinks...
+Requirement already satisfied: setuptools in /data/data/com.termux/files/usr/lib/python3.11/site-packages (65.5.0)
+Requirement already satisfied: pip in /data/data/com.termux/files/usr/lib/python3.11/site-packages (24.0)
+      Successfully uninstalled pip-24.0
+Successfully installed packaging-26.2 pip-26.1.2 setuptools-82.0.1 wheel-0.47.0
+[0;32m[INFO][0m Python status:
+Python 3.11.10
+Python 3.11.10
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 2: SYSTEM DEPENDENCIES + uv[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+E: Unable to locate package littlecms2
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Setting up htop (3.5.1) ...
+Setting up ncdu (1.22-1) ...
+Setting up pv (1.10.5) ...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;32m[INFO][0m uv ready: uv 0.11.19 (aarch64-linux-android)
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 3: STORAGE LAYOUT (Android 15 optimized)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+
+It appears that directory '~/storage' already exists.
+This script is going to rebuild its structure from
+scratch, wiping all dangling files. The actual storage
+content IS NOT going to be deleted.
+
+Aborting configuration and leaving directory '~/storage' intact.
+[0;32m[INFO][0m Storage ready: ~/storage/shared/OSINT/ + ~/osint
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 4: VIRTUAL ENVIRONMENT + REQUIREMENTS[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;36m[2026-06-07 11:34:58][0m Creating venv at /data/data/com.termux/files/home/venvs/osint...
+[0;36m[2026-06-07 11:35:11][0m Upgrading pip/uv inside venv...
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           TERMUX ALL-IN-ONE OSINT BOOTSTRAP (v1.0)                          ║
+║  Full remediation + Clean venv + uv + Optimizations + Job tools             ║
+║  Target: Android 15 Termux | Production OSINT / Media / Image Workflows     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+[0;36m[2026-06-07 11:36:53][0m Starting ALL-IN-ONE OSINT bootstrap | FORCE=1
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 0: VALIDATION[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;32m[INFO][0m Termux detected. Architecture: aarch64
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 1: PYTHON REMEDIATION (Remove EOL 3.8 + Fix 3.11)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;36m[2026-06-07 11:36:53][0m Ensuring clean python3.11...
+Reading state information...
+python3.11 is already the newest version (3.11.10).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;36m[2026-06-07 11:36:55][0m Fixing default symlinks...
+Requirement already satisfied: setuptools in /data/data/com.termux/files/usr/lib/python3.11/site-packages (82.0.1)
+Requirement already satisfied: pip in /data/data/com.termux/files/usr/lib/python3.11/site-packages (26.1.2)
+Requirement already satisfied: wheel in /data/data/com.termux/files/usr/lib/python3.11/site-packages (0.47.0)
+Requirement already satisfied: packaging>=24.0 in /data/data/com.termux/files/usr/lib/python3.11/site-packages (from wheel) (26.2)
+[0;32m[INFO][0m Python status:
+Python 3.11.10
+Python 3.11.10
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 2: SYSTEM DEPENDENCIES + uv[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+E: Unable to locate package littlecms2
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[0;32m[INFO][0m uv ready: uv 0.11.19 (aarch64-linux-android)
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 3: STORAGE LAYOUT (Android 15 optimized)[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+
+It appears that directory '~/storage' already exists.
+This script is going to rebuild its structure from
+scratch, wiping all dangling files. The actual storage
+content IS NOT going to be deleted.
+
+Aborting configuration and leaving directory '~/storage' intact.
+[0;32m[INFO][0m Storage ready: ~/storage/shared/OSINT/ + ~/osint
+
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[1m PHASE 4: VIRTUAL ENVIRONMENT + REQUIREMENTS[0m
+[1m══════════════════════════════════════════════════════════════════════════════[0m
+[0;36m[2026-06-07 11:37:33][0m Creating venv at /data/data/com.termux/files/home/venvs/osint...
+[0;36m[2026-06-07 11:37:47][0m Upgrading pip/uv inside venv...
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip

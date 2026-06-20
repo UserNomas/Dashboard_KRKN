@@ -1,0 +1,412 @@
+#!/usr/bin/env python3
+"""
+CCTV / NVR / DVR inventory for authorized local networks.
+Cross-platform: Windows, WSL, Linux, Termux.
+No external dependencies.
+
+Examples:
+  python cctv_inventory.py
+  python cctv_inventory.py --cidr 192.168.100.0/24
+  python cctv_inventory.py --timeout 0.5 --workers 80
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import datetime as dt
+import ipaddress
+import json
+import socket
+import ssl
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from typing import Any
+
+
+# Puertos de administración y video comúnmente usados en CCTV.
+# No intenta autenticación, credenciales ni acceso a streams.
+CCTV_PORTS = {
+    80: "HTTP",
+    81: "HTTP_ALT",
+    443: "HTTPS",
+    554: "RTSP",
+    8000: "HIKVISION_SDK",
+    8080: "HTTP_ALT",
+    8081: "HTTP_ALT",
+    8443: "HTTPS_ALT",
+    8899: "NVR_DVR",
+    9000: "CAMERA_NVR",
+    34567: "XMEYE_DVR",
+    37777: "DAHUA",
+}
+
+HTTP_PORTS = {80, 81, 8080, 8081}
+HTTPS_PORTS = {443, 8443}
+
+
+def get_local_ipv4() -> str:
+    """
+    Detecta la IPv4 usada por la ruta por defecto sin depender de ip/ifconfig.
+    No envía tráfico real: UDP connect sólo consulta la tabla local de rutas.
+    """
+    targets = [
+        ("8.8.8.8", 80),
+        ("1.1.1.1", 80),
+        ("192.168.1.1", 80),
+    ]
+
+    for host, port in targets:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+                sock.connect((host, port))
+                ip = sock.getsockname()[0]
+                if ip and not ip.startswith("127."):
+                    return ip
+        except OSError:
+            continue
+
+    try:
+        hostname = socket.gethostname()
+        candidates = socket.gethostbyname_ex(hostname)[2]
+        for ip in candidates:
+            if not ip.startswith("127."):
+                return ip
+    except OSError:
+        pass
+
+    raise RuntimeError(
+        "No se pudo detectar una IPv4 local. Usa --cidr, por ejemplo: "
+        "--cidr 192.168.100.0/24"
+    )
+
+
+def make_network(cidr: str | None) -> ipaddress.IPv4Network:
+    if cidr:
+        network = ipaddress.ip_network(cidr, strict=False)
+        if not isinstance(network, ipaddress.IPv4Network):
+            raise ValueError("Sólo se admite IPv4.")
+        return network
+
+    local_ip = get_local_ipv4()
+    # En la mayoría de LAN domésticas/pequeñas, /24 es la opción segura.
+    return ipaddress.ip_network(f"{local_ip}/24", strict=False)
+
+
+def tcp_open(ip: str, port: int, timeout: float) -> bool:
+    try:
+        with socket.create_connection((ip, port), timeout=timeout):
+            return True
+    except (ConnectionRefusedError, TimeoutError, OSError):
+        return False
+
+
+def reverse_dns(ip: str) -> str:
+    try:
+        hostname, _, _ = socket.gethostbyaddr(ip)
+        return hostname.rstrip(".")
+    except OSError:
+        return ""
+
+
+def read_http_metadata(ip: str, port: int, timeout: float) -> dict[str, str]:
+    """
+    Obtiene sólo cabeceras y título HTML básico cuando existe panel web público.
+    No inicia sesión ni prueba rutas especiales.
+    """
+    result = {
+        "http_server": "",
+        "http_title": "",
+        "http_status": "",
+    }
+
+    try:
+        with socket.create_connection((ip, port), timeout=timeout) as raw:
+            raw.settimeout(timeout)
+
+            if port in HTTPS_PORTS:
+                context = ssl.create_default_context()
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                conn = context.wrap_socket(raw, server_hostname=ip)
+            else:
+                conn = raw
+
+            request = (
+                f"HEAD / HTTP/1.1\r\n"
+                f"Host: {ip}\r\n"
+                f"Connection: close\r\n"
+                f"User-Agent: AssetInventory/1.0\r\n\r\n"
+            )
+
+            conn.sendall(request.encode("ascii", errors="ignore"))
+            response = conn.recv(8192).decode("latin-1", errors="ignore")
+            conn.close()
+
+            lines = response.splitlines()
+            if lines:
+                result["http_status"] = lines[0].strip()
+
+            for line in lines:
+                if line.lower().startswith("server:"):
+                    result["http_server"] = line.split(":", 1)[1].strip()
+                    break
+
+    except (OSError, ssl.SSLError):
+        pass
+
+    return result
+
+
+def classify_device(open_ports: list[int], metadata: dict[str, str]) -> tuple[str, str, str]:
+    ports = set(open_ports)
+    blob = " ".join(metadata.values()).lower()
+
+    device = "Unknown network device"
+    os_guess = "Unknown"
+    confidence = "Low"
+
+    if 37777 in ports:
+        device = "Possible Dahua camera / DVR / NVR"
+        os_guess = "Embedded Linux likely"
+        confidence = "High"
+    elif 8000 in ports and (80 in ports or 443 in ports or 554 in ports):
+        device = "Possible Hikvision camera / DVR / NVR"
+        os_guess = "Embedded Linux likely"
+        confidence = "High"
+    elif 34567 in ports:
+        device = "Possible XMEye-compatible DVR / NVR"
+        os_guess = "Embedded Linux likely"
+        confidence = "High"
+    elif 554 in ports and (80 in ports or 443 in ports or 8080 in ports):
+        device = "Likely IP camera or NVR"
+        os_guess = "Embedded Linux likely"
+        confidence = "High"
+    elif 554 in ports:
+        device = "Possible RTSP camera / video device"
+        os_guess = "Embedded Linux likely"
+        confidence = "Medium"
+    elif 8899 in ports or 9000 in ports:
+        device = "Possible DVR / NVR"
+        os_guess = "Embedded Linux likely"
+        confidence = "Medium"
+    elif 8080 in ports or 8081 in ports:
+        device = "Possible camera / DVR / IoT web panel"
+        os_guess = "Embedded Linux possible"
+        confidence = "Medium"
+    elif 80 in ports or 443 in ports:
+        device = "Web-managed device; verify manually"
+        os_guess = "Unknown"
+        confidence = "Low"
+
+    if "hikvision" in blob:
+        device = "Hikvision-related web device"
+        os_guess = "Embedded Linux likely"
+        confidence = "High"
+    elif "dahua" in blob:
+        device = "Dahua-related web device"
+        os_guess = "Embedded Linux likely"
+        confidence = "High"
+    elif "goahead" in blob or "boa" in blob:
+        if device == "Unknown network device":
+            device = "Embedded / IoT web device"
+        os_guess = "Embedded Linux possible"
+        confidence = "Medium"
+
+    return device, os_guess, confidence
+
+
+def risk_notes(open_ports: list[int]) -> list[str]:
+    risks = []
+
+    if 23 in open_ports:
+        risks.append("Telnet exposed")
+    if 21 in open_ports:
+        risks.append("FTP exposed")
+    if 80 in open_ports and 443 not in open_ports:
+        risks.append("HTTP without detected HTTPS")
+    if 554 in open_ports:
+        risks.append("RTSP exposed; validate authentication policy")
+    if 37777 in open_ports:
+        risks.append("Dahua service exposed")
+    if 8000 in open_ports:
+        risks.append("Hikvision SDK service exposed")
+    if 34567 in open_ports:
+        risks.append("XMEye DVR service exposed")
+
+    return risks or ["No obvious exposure from scanned ports"]
+
+
+def scan_host(ip: str, timeout: float) -> dict[str, Any] | None:
+    open_ports = []
+
+    for port in CCTV_PORTS:
+        if tcp_open(ip, port, timeout):
+            open_ports.append(port)
+
+    # Para reducir falsos positivos, sólo reportar equipos con puertos CCTV/web.
+    if not open_ports:
+        return None
+
+    hostname = reverse_dns(ip)
+
+    metadata = {
+        "http_server": "",
+        "http_title": "",
+        "http_status": "",
+    }
+
+    for port in open_ports:
+        if port in HTTP_PORTS or port in HTTPS_PORTS:
+            metadata = read_http_metadata(ip, port, timeout)
+            if metadata["http_server"] or metadata["http_status"]:
+                break
+
+    device, os_guess, confidence = classify_device(open_ports, metadata)
+
+    return {
+        "ip": ip,
+        "hostname": hostname,
+        "device_type": device,
+        "likely_os": os_guess,
+        "confidence": confidence,
+        "open_ports": ";".join(f"{p}/tcp" for p in open_ports),
+        "services": ";".join(CCTV_PORTS[p] for p in open_ports),
+        "http_status": metadata["http_status"],
+        "http_server": metadata["http_server"],
+        "risk_notes": "; ".join(risk_notes(open_ports)),
+    }
+
+
+def progress(done: int, total: int) -> None:
+    width = 38
+    filled = int(width * done / max(total, 1))
+    bar = "#" * filled + "-" * (width - filled)
+    pct = int(100 * done / max(total, 1))
+    print(f"\r[{bar}] {pct:3d}% ({done}/{total})", end="", flush=True)
+
+
+def save_reports(rows: list[dict[str, Any]], stamp: str) -> tuple[Path, Path]:
+    fields = [
+        "ip",
+        "hostname",
+        "device_type",
+        "likely_os",
+        "confidence",
+        "open_ports",
+        "services",
+        "http_status",
+        "http_server",
+        "risk_notes",
+    ]
+
+    csv_path = Path(f"cctv_inventory_{stamp}.csv")
+    json_path = Path(f"cctv_inventory_{stamp}.json")
+
+    with csv_path.open("w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    with json_path.open("w", encoding="utf-8") as file:
+        json.dump(rows, file, indent=2, ensure_ascii=False)
+
+    return csv_path, json_path
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Inventario autorizado de cámaras/DVR/NVR en una red local."
+    )
+    parser.add_argument(
+        "--cidr",
+        help="Red IPv4 a analizar. Ejemplo: 192.168.100.0/24",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=0.45,
+        help="Timeout TCP por puerto en segundos. Default: 0.45",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=64,
+        help="Hilos simultáneos. Default: 64",
+    )
+    args = parser.parse_args()
+
+    try:
+        network = make_network(args.cidr)
+    except (RuntimeError, ValueError) as exc:
+        print(f"[ERROR] {exc}")
+        return 1
+
+    hosts = [str(ip) for ip in network.hosts()]
+    local_ip = get_local_ipv4() if not args.cidr else ""
+
+    print("=" * 58)
+    print(" CCTV / DVR / NVR AUTHORIZED NETWORK INVENTORY")
+    print("=" * 58)
+    print(f"Network : {network}")
+    if local_ip:
+        print(f"Local IP: {local_ip}")
+    print(f"Hosts   : {len(hosts)}")
+    print(f"Ports   : {', '.join(map(str, CCTV_PORTS.keys()))}")
+    print()
+
+    rows: list[dict[str, Any]] = []
+    completed = 0
+
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as executor:
+        futures = {
+            executor.submit(scan_host, ip, args.timeout): ip
+            for ip in hosts
+        }
+
+        for future in as_completed(futures):
+            completed += 1
+            progress(completed, len(hosts))
+
+            try:
+                result = future.result()
+                if result:
+                    rows.append(result)
+                    print(
+                        f"\n[FOUND] {result['ip']:<15} "
+                        f"{result['device_type']} | {result['open_ports']}"
+                    )
+            except Exception as exc:
+                ip = futures[future]
+                print(f"\n[WARN] Error scanning {ip}: {exc}")
+
+    print("\n")
+    rows.sort(key=lambda item: ipaddress.ip_address(item["ip"]))
+
+    stamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_path, json_path = save_reports(rows, stamp)
+
+    print("=" * 58)
+    print("SCAN COMPLETE")
+    print("=" * 58)
+    print(f"Candidates found: {len(rows)}")
+    print(f"CSV report      : {csv_path}")
+    print(f"JSON report     : {json_path}")
+    print()
+
+    if rows:
+        for row in rows:
+            print(
+                f"{row['ip']:<15} | {row['device_type']:<40} | "
+                f"{row['open_ports']}"
+            )
+    else:
+        print("No CCTV/web candidates were found on the selected ports.")
+
+    print("\nNote: OS classification is heuristic. It is not a true OS fingerprint.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
